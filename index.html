@@ -11,468 +11,455 @@
   <link rel="shortcut icon" href="assets/favicon.png" type="image/png" />
   <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
   <link rel="stylesheet" href="style.css?v=20" />
-    <style>
+<style>
+    /* Reset and Base Styles */
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
 
-        
-#adminPanel {
-  position: fixed;
-  top: 10px;
-  left: 10px;
-  background: rgba(0, 0, 0, 0.9);
-  color: #fff;
-  padding: 15px;
-  border-radius: 8px;
-  z-index: 1001;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
-  font-size: 14px;
-  width: 250px;
-}
+    body, html {
+      height: 100%;
+      font-family: sans-serif;
+      line-height: 1.4;
+      overflow-y: hidden;
+    }
 
-#adminPanel h2 {
-  margin: 0 0 10px;
-  text-align: center;
-  color: #0f0;
-}
+    /* Map */
+    #map {
+      height: 100vh;
+      width: 100vw;
+    }
 
-#adminPanel button {
-  padding: 6px;
-  background: #444;
-  color: #fff;
-  border: 1px solid #666;
-  border-radius: 4px;
-  cursor: pointer;
-  transition: background 0.2s;
-}
+    /* Admin Panel */
+    #adminPanel {
+      position: fixed;
+      top: 10px;
+      left: 10px;
+      background: rgba(0, 0, 0, 0.9);
+      color: #fff;
+      padding: 15px;
+      border-radius: 8px;
+      z-index: 1001;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+      font-size: 0.875rem;
+      width: 250px;
+    }
 
-#adminPanel button:hover {
-  background: #666;
-}
+    #adminPanel h2 {
+      margin: 0 0 10px;
+      text-align: center;
+      color: #0f0;
+    }
 
-#adminPanel input[type="number"] {
-  width: 50px;
-  padding: 4px;
-  border-radius: 4px;
-  border: 1px solid #666;
-  background: #222;
-  color: #fff;
-}
+    #adminPanel button {
+      padding: 6px;
+      background: #444;
+      color: #fff;
+      border: 1px solid #666;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
 
-#adminPanel label {
-  margin-right: 8px;
-}
+    #adminPanel button:hover {
+      background: #666;
+    }
 
-#adminPanel .admin-section {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  margin-bottom: 8px;
-}
+    #adminPanel input[type="number"] {
+      width: 50px;
+      padding: 4px;
+      border-radius: 4px;
+      border: 1px solid #666;
+      background: #222;
+      color: #fff;
+    }
 
-@media (max-width: 600px) {
-  #adminPanel {
-    width: 200px;
-    font-size: 12px;
-  }
-  #adminPanel input[type="number"] {
-    width: 40px;
-  }
-}
-body, html {
-  margin: 0;
-  padding: 0;
-  height: 100%;
-  font-family: sans-serif;
-  line-height: 1.4;
-  overflow-y: hidden;
-}
+    #adminPanel label {
+      margin-right: 8px;
+    }
 
-#map {
-  height: 100vh;
-  width: 100vw;
-}
+    #adminPanel .admin-section {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      margin-bottom: 8px;
+    }
 
-#controlPanel {
-  position: absolute;
-  top: 10px;
-  right: 10px;
-  background: white;
-  border: 2px solid #666;
-  padding: 10px;
-  z-index: 1001;
-  border-radius: 6px;
-  font-family: sans-serif;
-  box-shadow: 2px 2px 10px rgba(0,0,0,0.2);
-  max-width: 280px;
-  box-sizing: border-box;
-  overflow-wrap: break-word;
-  white-space: normal;
-}
+    /* Control Panel */
+    #controlPanel {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      background: white;
+      border: 2px solid #666;
+      padding: 10px;
+      z-index: 1001;
+      border-radius: 6px;
+      box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.2);
+      max-width: 280px;
+      display: none;
+    }
 
-#controlPanel .panel-body {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
+    #controlPanel .panel-body {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
 
-#controlPanel button {
-  font-size: 14px;
-  padding: 4px 6px;
-  cursor: pointer;
-}
+    #controlPanel button {
+      font-size: 0.875rem;
+      padding: 4px 6px;
+      cursor: pointer;
+    }
 
-#pvoMenu {
-  position: fixed;
-  bottom: 10px;
-  left: 50%;
-  transform: translateX(-50%);
-  z-index: 1000;
-  display: flex;
-  gap: 8px;
-  background: rgba(255, 255, 255, 0.95);
-  padding: 8px 12px;
-  border-radius: 10px;
-  box-shadow: 0 0 6px rgba(0,0,0,0.2);
-  width: 90%;
-  max-width: 680px;
-  overflow-x: auto;
-  touch-action: manipulation; 
-  -webkit-tap-highlight-color: transparent; 
-  background: linear-gradient(to bottom, #222d2f, #1a1f1f);
-  border: 2px solid #000;
-  box-shadow: inset 0 0 4px #000, 0 0 8px rgba(0, 0, 0, 0.6);
-  border-radius: 12px;
-  padding: 8px 12px;
-  backdrop-filter: blur(4px);
-}
+    /* PVO Menu */
+    #pvoMenu {
+      position: fixed;
+      bottom: 10px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 1000;
+      display: flex;
+      gap: 8px;
+      padding: 8px 12px;
+      border-radius: 12px;
+      background: linear-gradient(to bottom, #222d2f, #1a1f1f);
+      border: 2px solid #000;
+      box-shadow: inset 0 0 4px #000, 0 0 8px rgba(0, 0, 0, 0.6);
+      backdrop-filter: blur(4px);
+      width: 90%;
+      max-width: 680px;
+      overflow-x: auto;
+      touch-action: manipulation;
+      -webkit-tap-highlight-color: transparent;
+      -ms-tap-highlight-color: transparent;
+    }
 
-.pvo-item {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  border: 1px solid #ccc;
-  border-radius: 6px;
-  padding: 6px;
-  width: 100px;
-  cursor: pointer;
-  text-align: center;
-  font-size: 12px;
-  background: #f9f9f9;
-  transition: all 0.2s ease;
-  user-select: none;
-  line-height: 1.2;
-}
+    .pvo-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      padding: 6px;
+      width: 100px;
+      cursor: pointer;
+      text-align: center;
+      font-size: 0.75rem;
+      background: #f9f9f9;
+      transition: all 0.2s ease;
+      user-select: none;
+      line-height: 1.2;
+    }
 
-.pvo-item:hover {
-  transform: scale(1.05);
-  background: #e0f0ff;
-}
+    .pvo-item:hover {
+      transform: scale(1.05);
+      background: #e0f0ff;
+    }
 
-.pvo-item img {
-  width: 55px;
-  height: 36px;
-  object-fit: contain;
-  margin-bottom: 4px;
-}
+    .pvo-item img {
+      width: 55px;
+      height: 36px;
+      object-fit: contain;
+      margin-bottom: 4px;
+    }
 
-.pvo-item.selected {
-  border-color: #007bff;
-  background-color: #d0e7ff;
-  box-shadow: 0 0 8px #007bff;
-}
+    .pvo-item.selected {
+      border-color: #007bff;
+      background-color: #d0e7ff;
+      box-shadow: 0 0 8px #007bff;
+    }
 
+    /* Pre-Menu */
+    #preMenu {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: url('assets/start-screen.webp') center center no-repeat;
+      background-size: cover;
+      z-index: 1000;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+    }
 
-#preMenu {
-  position: absolute;
-  top: 0; left: 0;
-  width: 100%;
-  height: 100%;
-  background: url('assets/start-screen.webp') center center no-repeat;
-  background-size: cover;
-  z-index: 1000;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  text-align: center;
-  overflow: hidden;
-}
+    #preMenu .overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.6);
+      z-index: 1;
+    }
 
-#preMenu .overlay {
-  position: absolute;
-  top: 0; left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0, 0, 0, 0.6);
-  z-index: 1;
-}
+    .preMenu-content {
+      position: relative;
+      z-index: 2;
+      color: #fff;
+      max-width: 90%;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
 
-.preMenu-content {
-  position: relative;
-  z-index: 2;
-  color: #fff;
-  max-width: 90%;
-  padding: 20px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
+    .ai-note {
+      font-size: 0.875rem;
+      color: #ccc;
+      margin-bottom: 10px;
+    }
 
-.ai-note {
-  font-size: 14px;
-  color: #ccc;
-  margin-bottom: 10px;
-}
+    .button-group {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin: 15px 0;
+      width: 100%;
+      max-width: 320px;
+    }
 
-.button-group {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  margin: 15px 0;
-  width: 100%;
-  max-width: 320px;
-}
+    .mode-button {
+      padding: 12px 24px;
+      font-size: 1.0625rem;
+      border-radius: 6px;
+      background: linear-gradient(to bottom, #2e2e2e, #1b1b1b);
+      color: #e0e0e0;
+      border: 1px solid #444;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: all 0.2s ease-in-out;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
+    }
 
-.mode-button {
-  padding: 12px 24px;
-  font-size: 17px;
-  border-radius: 6px;
-  background: linear-gradient(to bottom, #2e2e2e, #1b1b1b);
-  color: #e0e0e0;
-  border: 1px solid #444;
-  text-transform: uppercase;
-  letter-spacing: 1px;
-  font-weight: bold;
-  cursor: pointer;
-  transition: all 0.2s ease-in-out;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
-}
+    .mode-button:hover {
+      background: linear-gradient(to bottom, #3a3a3a, #222);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.6);
+      color: #fff;
+      transform: scale(1.02);
+    }
 
-.mode-button:hover {
-  background: linear-gradient(to bottom, #3a3a3a, #222);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.6);
-  color: #fff;
-  transform: scale(1.02);
-}
+    /* Legend */
+    #legend {
+      margin-top: 5px;
+      background: rgba(255, 255, 255, 0.05);
+      padding: 15px 20px;
+      border-radius: 10px;
+      font-size: 1rem;
+      max-width: 400px;
+      text-align: left;
+      color: #fff;
+    }
 
+    /* Donate Button */
+    .donate-btn {
+      padding: 10px 20px;
+      font-size: 1.125rem;
+      background-color: #fff;
+      color: #000;
+      border: 2px solid #28a745;
+      border-radius: 8px;
+      margin-top: 10px;
+      cursor: pointer;
+    }
 
-#legend {
-  margin-top: 5px;
-  background: rgba(255,255,255,0.05);
-  padding: 15px 20px;
-  border-radius: 10px;
-  font-size: 16px;
-  max-width: 400px;
-  text-align: left;
-  color: #fff;
-}
+    /* Footer Links */
+    .footer-links {
+      display: flex;
+      gap: 15px;
+      align-items: center;
+      margin-top: 20px;
+    }
 
-.donate-btn {
-  padding: 10px 20px;
-  font-size: 18px;
-  background-color: #fff;
-  color: #000;
-  border: 2px solid #28a745;
-  border-radius: 8px;
-  margin-top: 10px;
-  cursor: pointer;
-}
+    .footer-links a {
+      color: #ccc;
+      text-decoration: none;
+      font-size: 0.875rem;
+    }
 
-.footer-links {
-  display: flex;
-  gap: 15px;
-  align-items: center;
-  margin-top: 20px;
-}
+    /* Loading Indicator */
+    #loading {
+      margin-top: 30px;
+      display: none;
+    }
 
-.footer-links a {
-  color: #ccc;
-  text-decoration: none;
-  font-size: 14px;
-}
+    #loadingText {
+      font-size: 1rem;
+      margin-bottom: 8px;
+    }
 
-#loading {
-  margin-top: 30px;
-  display: none;
-}
+    #loadingBar {
+      width: 300px;
+      height: 20px;
+      background: #555;
+      margin: 0 auto;
+      border-radius: 10px;
+      overflow: hidden;
+    }
 
-#loadingText {
-  font-size: 16px;
-  margin-bottom: 8px;
-}
+    #loadingProgress {
+      width: 0%;
+      height: 100%;
+      background: #0f0;
+      transition: width 0.3s ease;
+    }
 
-#loadingBar {
-  width: 300px;
-  height: 20px;
-  background: #555;
-  margin: 0 auto;
-  border-radius: 10px;
-  overflow: hidden;
-}
+    /* Alarm Indicator */
+    #alarmIndicator {
+      position: absolute;
+      bottom: 20px;
+      left: 40px;
+      display: none;
+      z-index: 10000;
+      width: 60px;
+      text-align: center;
+      font-size: 0.875rem;
+      font-weight: bold;
+      color: #000;
+    }
 
-#loadingProgress {
-  width: 0%;
-  height: 100%;
-  background: #0f0;
-  transition: width 0.3s ease;
-}
+    .alarm-dot {
+      width: 40px;
+      height: 40px;
+      margin: 0 auto 4px auto;
+      background: red;
+      border-radius: 50%;
+      animation: pulse 0.4s infinite;
+      box-shadow: 0 0 15px 6px red;
+    }
 
-#alarmIndicator {
-  position: absolute;
-  bottom: 20px;
-  left: 40px;
-  display: none;
-  z-index: 10000;
-  width: 60px;
-  text-align: center;
-  font-size: 14px;
-  font-weight: bold;
-  color: #000;
-}
+    @keyframes pulse {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.3); }
+      100% { transform: scale(1); }
+    }
 
-.alarm-dot {
-  width: 40px;
-  height: 40px;
-  margin: 0 auto 4px auto;
-  background: red;
-  border-radius: 50%;
-  animation: pulse 0.4s infinite;
-  box-shadow: 0 0 15px 6px red;
-}
+    /* Media Queries */
+    @media (max-width: 600px) {
+      #adminPanel {
+        width: 200px;
+        font-size: 0.75rem;
+      }
 
-@keyframes pulse {
-  0% { transform: scale(1); }
-  50% { transform: scale(1.3); }
-  100% { transform: scale(1); }
-}
+      #adminPanel input[type="number"] {
+        width: 40px;
+      }
 
+      .button-group {
+        width: 100%;
+      }
 
-@media (max-width: 600px) {
-  .button-group {
-    width: 100%;
-  }
+      #legend {
+        font-size: 0.875rem;
+      }
 
-  #legend {
-    font-size: 14px;
-  }
+      .footer-links {
+        flex-direction: column;
+        gap: 8px;
+      }
 
-  .footer-links {
-    flex-direction: column;
-    gap: 8px;
-  }
+      #controlPanel {
+        top: 10px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: rgba(0, 0, 0, 0.5);
+        color: #fff;
+        border: none;
+        box-shadow: none;
+        padding: 6px 10px;
+        font-size: 0.875rem;
+        max-width: none;
+        z-index: 1002;
+      }
 
-  #controlPanel {
-    top: 10px;
-    left: 50%;
-    transform: translateX(-50%);
-    background: rgba(0,0,0,0.5);
-    color: #fff;
-    border: none;
-    box-shadow: none;
-    padding: 6px 10px;
-    font-size: 14px;
-    max-width: none;
-    z-index: 1002;
-  }
+      #controlPanel .panel-body {
+        flex-direction: row;
+        gap: 8px;
+        align-items: center;
+        justify-content: center;
+        white-space: nowrap;
+      }
 
-  #controlPanel .panel-body {
-    flex-direction: row;
-    gap: 8px;
-    align-items: center;
-    justify-content: center;
-    white-space: nowrap;
-  }
+      #controlPanel button {
+        display: none;
+      }
 
-  #controlPanel button {
-    display: none !important;
-  }
-
-  #alarmIndicator {
-    position: fixed !important;
-    bottom: 150px !important;
-    left: 20px !important;
-    transform: none !important;
-    z-index: 1003 !important;
-  }
-}
-
-
-
-    </style>
-  
-  <script async src="https://www.googletagmanager.com/gtag/js?id=G-52ZMNSVTNM"></script>
+      #alarmIndicator {
+        bottom: 150px;
+        left: 20px;
+        transform: none;
+        z-index: 1003;
+      }
+    }
+  </style>
+  <script defer src="https://www.googletagmanager.com/gtag/js?id=G-52ZMNSVTNM"></script>
   <script>
     window.dataLayer = window.dataLayer || [];
-    function gtag(){dataLayer.push(arguments);}
+    function gtag() { dataLayer.push(arguments); }
     gtag('js', new Date());
     gtag('config', 'G-52ZMNSVTNM');
   </script>
 </head>
 <body>
+  <main id="map" aria-label="Game Map"></main>
 
-  <div id="controlPanel" class="panel" style="display:none;">
+  <section id="controlPanel" class="panel">
     <div class="panel-body">
       <div>💰 <span id="money">3500</span></div>
       <div>🌊 <span id="waveDisplay">1</span></div>
       <div>🎯 <span id="scoreDisplay">0</span></div>
     </div>
-  </div>
+  </section>
 
-  <div id="pvoMenu"></div>
+  <section id="pvoMenu" aria-label="PVO Selection Menu"></section>
 
- 
-  <div id="preMenu">
+  <section id="preMenu" aria-label="Start Menu">
     <div class="overlay"></div>
     <div class="preMenu-content">
-      <div class="ai-note">🧠 Ця гра створена на 95% за допомогою штучного інтелекту ChatGPT</div>
+      <p class="ai-note">🧠 Ця гра створена на 95% за допомогою штучного інтелекту ChatGPT</p>
       <h1>Dronefall: UA Defense</h1>
-
       <div class="button-group">
-        <button id="startBtn" class="mode-button green">Режим: з всіх сторін</button>
-        <button id="startRightBtn" class="mode-button blue">Режим: проти росії ➡️</button>
-        <button id="startHardcoreBtn" class="mode-button red">🔥 Хардкор-режим (безліміт рівнів)</button>
+        <button id="startBtn" class="mode-button green" type="button" aria-label="Start game in all directions mode">Режим: з всіх сторін</button>
+        <button id="startRightBtn" class="mode-button blue" type="button" aria-label="Start game in against Russia mode">Режим: проти росії ➡️</button>
+        <button id="startHardcoreBtn" class="mode-button red" type="button" aria-label="Start game in hardcore mode">🔥 Хардкор-режим (безліміт рівнів)</button>
       </div>
-      <div id="loading">
+      <div id="loading" aria-hidden="true">
         <div id="loadingText">Завантаження: 0%</div>
         <div id="loadingBar">
           <div id="loadingProgress"></div>
         </div>
       </div>
-</div>
       <div id="legend">
         💰 <b>Гроші</b> - для покупки ППО.<br>
         🌊 <b>Хвиля</b> - номер атаки.<br>
         🎯 <b>Рахунок</b> - кількість знищених цілей.
       </div>
-
-      
-      <button onclick="window.open('https://send.monobank.ua/jar/8VKoiC3p6q', '_blank')" class="donate-btn">💚 Донат на ЗСУ</button>
-
-      
-      <div style="margin-top: 12px; padding: 10px; background-color: #fff3cd; border: 1px solid #ffeeba; border-radius: 8px; color: #856404; font-weight: 500;">
-  🚀 <b>Усі новини про гру — в </b><br>
-  <a href="https://t.me/Dronefall" target="_blank" style="color: #0056b3; text-decoration: underline;">Telegram</a>
-</div>
-
-      
-      
-
+      <button type="button" class="donate-btn" onclick="window.open('https://send.monobank.ua/jar/8VKoiC3p6q', '_blank')" aria-label="Donate to Ukrainian Armed Forces">💚 Донат на ЗСУ</button>
+      <div class="telegram-notice">
+        🚀 <b>Усі новини про гру — в </b><br>
+        <a href="https://t.me/Dronefall" target="_blank" aria-label="Join Telegram for game updates">Telegram</a>
+      </div>
     </div>
-  </div>
+  </section>
 
- 
-  <div id="map"></div>
-  <div id="alarmIndicator">
+  <div id="alarmIndicator" aria-live="polite">
     <div class="alarm-dot"></div>
     ⚠️ Повторні пуски
   </div>
 
-  <audio id="alarmSound" src="assets/alarm.mp3"></audio>
-  <audio id="bg-music" src="assets/music.mp3" autoplay loop></audio>
-
-  
+  <audio id="alarmSound" src="assets/alarm.mp3" preload="auto"></audio>
+  <audio id="bg-music" src="assets/music.mp3" loop preload="auto"></audio>
   <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
   <script src="game.js?v=20"></script>
   <script>
